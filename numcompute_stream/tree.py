@@ -57,6 +57,8 @@ import numpy as np
 
 from numcompute.preprocessing import NotFittedError, _check_n_features, _check_numeric
 
+from ._checks import _check_int
+
 __all__ = ["DecisionTreeClassifier"]
 
 _CRITERIA = ("gini", "entropy")
@@ -96,14 +98,6 @@ def _check_labels(y, n_samples: int, owner: str) -> np.ndarray:
         raise ValueError(f"{owner}: X has {n_samples} rows but y has {y.shape[0]} labels.")
     return y
 
-
-def _check_int(value, name: str, minimum: int) -> int:
-    """Return ``value`` as ``int`` after checking it is an integer >= ``minimum``."""
-    if isinstance(value, bool) or not isinstance(value, (int, np.integer)):
-        raise TypeError(f"{name} must be an integer, got {type(value).__name__}.")
-    if value < minimum:
-        raise ValueError(f"{name} must be >= {minimum}, got {value}.")
-    return int(value)
 
 
 # ----------------------------------------------------------------------
