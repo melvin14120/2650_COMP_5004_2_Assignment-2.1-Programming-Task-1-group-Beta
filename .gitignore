@@ -7,3 +7,5 @@ __pycache__/
 .coverage
 numcompute/__pycache__/
 tests/__pycache__/
+.venv/
+.ipynb_checkpoints/

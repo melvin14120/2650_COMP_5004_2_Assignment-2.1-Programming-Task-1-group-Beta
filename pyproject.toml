@@ -6,10 +6,10 @@ build-backend = "setuptools.build_meta"
 name = "numcompute"
 version = "0.1.0"
 requires-python = ">=3.9"
-dependencies = ["numpy"]
+dependencies = ["numpy", "matplotlib"]
 
 [project.optional-dependencies]
 dev = ["pytest"]
 
 [tool.setuptools.packages.find]
-include = ["numcompute*"]
+include = ["numcompute*", "numcompute_stream*"]
