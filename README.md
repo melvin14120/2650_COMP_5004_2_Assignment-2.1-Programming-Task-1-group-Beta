@@ -440,7 +440,7 @@ Plots: `benchmark/results/buffer_size.png` and `benchmark/results/drift_curves.p
 
 ### Streaming tests
 
-There are 298 unit tests (`tests/test_stream_*.py`) and 21 docstring examples. The tests compare the vectorised code with hand-written loops and with the A1 batch versions, cover edge cases (empty chunks, NaN, ties, constant and all-NaN columns, single-class chunks, changing feature counts, shape and type errors) and turn every `RuntimeWarning` into an error.
+There are 300 unit tests (`tests/test_stream_*.py`) and 21 docstring examples. The tests compare the vectorised code with hand-written loops and with the A1 batch versions, cover edge cases (empty chunks, NaN, ties, constant and all-NaN columns, single-class chunks, changing feature counts, shape and type errors) and turn every `RuntimeWarning` into an error.
 
 ```bash
 python -m pytest tests/                                    # A1 and A2 tests together
