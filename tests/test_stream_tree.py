@@ -401,3 +401,10 @@ def test_threshold_between_adjacent_floats_stays_below_the_upper_value():
     model = DecisionTreeClassifier(max_depth=1).fit(np.array([[lo], [hi]]), np.array([0, 1]))
     assert model.threshold_[0] == lo
     assert model.predict(np.array([[lo], [hi]])).tolist() == [0, 1]
+
+    
+
+def test_split_search_returns_none_when_there_is_nothing_to_split():
+    # one sample, or no candidate features: no cut exists
+    assert tr._best_split(np.array([[1.0]]), np.array([[1.0, 0.0]]), np.array([0]), "gini") is None
+    assert tr._best_split(np.array([[0.0], [1.0]]), np.eye(2), np.array([], dtype=int), "gini") is None

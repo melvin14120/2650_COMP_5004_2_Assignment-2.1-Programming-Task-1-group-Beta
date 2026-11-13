@@ -449,3 +449,11 @@ def test_windowed_auc_with_nothing_in_the_window_is_nan_and_has_no_curve():
     assert np.isnan(auc_.result())
     with pytest.raises(ValueError):
         auc_.roc_curve()
+
+
+
+def test_the_base_classification_score_must_be_subclassed():
+    from numcompute_stream.metrics import _ClassificationScore
+    score = _ClassificationScore().update([0, 1], [0, 1])
+    with pytest.raises(NotImplementedError):
+        score.result()
