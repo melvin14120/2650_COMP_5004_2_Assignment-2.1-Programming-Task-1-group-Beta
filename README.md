@@ -388,6 +388,8 @@ python -m benchmark.buffer_size_benchmark       # how buffer_size changes accura
 | streaming confusion matrix, 20000 samples             | 0.005387       | 0.04915  | 9.12x   |
 | running mean and variance, 20000 samples in 20 chunks | 0.03734        | 0.2847   | 7.62x   |
 
+Timings change from run to run. A second run on the same laptop in a fresh clone (NumPy 2.5.4) gave 10.50x, 8.03x, 5.14x and 7.29x for the four rows above. The vectorised version was faster every time, but treat the exact ratios as approximate.
+
 **Effect of `buffer_size`** (test-then-train, tree `max_depth=5`). Every buffer size sees the same chunks. Synthetic streams: 20,000 samples in chunks of 100, mean of 5 seeds. Housing: chunks of 25, mean of 10 shuffles. Accuracies show the mean ± standard deviation.
 
 - `scored %`: share of samples that could be scored, because nothing can be scored before the first tree exists.
