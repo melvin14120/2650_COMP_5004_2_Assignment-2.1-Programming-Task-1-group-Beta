@@ -442,3 +442,10 @@ def test_auc_memory_does_not_grow_with_the_stream():
         auc_.update(rng.integers(0, 2, 1000), rng.random(1000))
     assert auc_._pos.shape == auc_._neg.shape == (100,)
     assert auc_._pos.sum() + auc_._neg.sum() == 50_000
+
+
+def test_windowed_auc_with_nothing_in_the_window_is_nan_and_has_no_curve():
+    auc_ = StreamingAUC(window=5)
+    assert np.isnan(auc_.result())
+    with pytest.raises(ValueError):
+        auc_.roc_curve()

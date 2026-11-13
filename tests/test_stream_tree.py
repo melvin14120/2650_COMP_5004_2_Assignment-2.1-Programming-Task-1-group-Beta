@@ -353,3 +353,51 @@ def test_repr_and_get_params():
     model = DecisionTreeClassifier(max_depth=3, buffer_size=7)
     assert "buffer_size=7" in repr(model)
     assert model.get_params()["max_depth"] == 3
+
+    
+
+# ---------- gaps found by the fault-injection check ----------
+def test_nan_follows_the_larger_child_at_prediction():
+    # Right child has 4 training samples, left has 3: NaN must go right (class 1).
+    X = np.array([[0.0], [1.0], [2.0], [10.0], [11.0], [12.0], [13.0]])
+    y = np.array([0, 0, 0, 1, 1, 1, 1])
+    model = DecisionTreeClassifier(max_depth=1).fit(X, y)
+    assert not model.nan_left_[0]
+    assert model.predict([[np.nan]]).tolist() == [1]
+    # Mirror image: left child has 4 samples, right has 3, so NaN must go left (class 0).
+    X2 = np.array([[0.0], [1.0], [2.0], [3.0], [10.0], [11.0], [12.0]])
+    y2 = np.array([0, 0, 0, 0, 1, 1, 1])
+    model2 = DecisionTreeClassifier(max_depth=1).fit(X2, y2)
+    assert model2.nan_left_[0]
+    assert model2.predict([[np.nan]]).tolist() == [0]
+
+
+def test_a_feature_with_many_nan_is_penalised_in_the_split_choice():
+    # Feature 0 separates the classes perfectly but is NaN in half the rows
+    # (scaled gain 0.25); feature 1 is complete and separates them less well
+    # (gain 0.3). The complete feature must win the root split.
+    y = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+    f0 = np.array([0.0, np.nan, np.nan, 1.0, 10.0, np.nan, np.nan, 11.0])
+    f1 = np.array([0.0, 1.0, 2.0, 10.0, 3.0, 11.0, 12.0, 13.0])
+    model = DecisionTreeClassifier(max_depth=1).fit(np.column_stack([f0, f1]), y)
+    assert model.feature_[0] == 1
+
+
+def test_feature_importances_are_weighted_by_node_size_and_match_a_hand_calculation():
+    # Root splits on feature 0 (decrease 4/3), then the right node (3 samples)
+    # splits on feature 1 (decrease 4/3): both features contribute equally.
+    X = np.array([[0, 0], [0, 0], [0, 0], [1, 0], [1, 0], [1, 1]], dtype=float)
+    y = np.array([0, 0, 0, 1, 1, 0])
+    model = DecisionTreeClassifier(max_depth=2).fit(X, y)
+    assert model.feature_[0] == 0
+    np.testing.assert_allclose(model.feature_importances_, [0.5, 0.5])
+
+
+def test_threshold_between_adjacent_floats_stays_below_the_upper_value():
+    # lo has an odd last bit, so lo + (hi - lo) / 2 rounds up to hi; the tree
+    # must fall back to lo so that hi still goes to the right child.
+    lo = np.nextafter(1.0, 2.0)
+    hi = np.nextafter(lo, 2.0)
+    model = DecisionTreeClassifier(max_depth=1).fit(np.array([[lo], [hi]]), np.array([0, 1]))
+    assert model.threshold_[0] == lo
+    assert model.predict(np.array([[lo], [hi]])).tolist() == [0, 1]
